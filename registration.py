@@ -1,0 +1,4 @@
+#Variables
+registrants = []
+days = []
+

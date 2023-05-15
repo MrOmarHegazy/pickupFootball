@@ -1,0 +1,54 @@
+Notes on structure of the app and T0-DO:
+
+Front-End:
+
+1. Start with website
+2. See how easy or hard it is to make an ios version using swift 
+
+Back-End:
+
+1. Server: need to figure out where I'm going to run it, has to be something cheap and reliable
+2. Database: Can use SQL lite
+
+#################################################################################################
+Chat GPT Suggestion:
+
+Building both a website and an iOS app will definitely require more resources compared to building just one of them. However, the decision largely depends on your user base and how they are likely to interact with your application. If your users are more likely to be on their phones, an iOS app might make more sense, whereas a website would be more universally accessible.
+
+Let's break down what you might need for each option.
+
+1. **Website:**
+
+   Here's a possible tech stack:
+
+   - **Frontend:** React or Vue.js for dynamic and responsive UI. Bootstrap or Tailwind CSS for pre-built components and design.
+   - **Backend:** Flask or Django if you prefer Python, or Node.js if you prefer JavaScript. Flask is simpler and lighter, while Django comes with more built-in features.
+   - **Database:** PostgreSQL is a good option for relational databases, and MongoDB is a good NoSQL option. Your choice depends on your data structure.
+   - **Server:** Nginx or Apache for a static server. For deploying your server-side applications, consider Gunicorn or uWSGI.
+   - **Containerization:** Docker, which you've mentioned, is an excellent choice for creating a consistent environment across different machines.
+   - **Version Control:** Git, hosted on a platform like GitHub.
+   - **Deployment:** Consider using AWS, Google Cloud, or Heroku for deploying your application.
+   - **CI/CD:** Tools like Jenkins, GitHub Actions, or CircleCI can help with continuous integration and deployment.
+
+2. **iOS App:**
+
+   Here's a possible tech stack:
+
+   - **Frontend:** Swift for native development. You can also consider cross-platform frameworks like Flutter or React Native, which would allow you to target Android as well.
+   - **Backend, Database, Server, Containerization, Version Control, Deployment, CI/CD:** These would be the same as the website option.
+
+3. **Hybrid Option:**
+
+   You could also consider building a Progressive Web App (PWA). PWAs are web applications that can be installed on a user's device and can function offline. They can be accessed through a browser or can be launched from the user's home screen just like a native app. This way, you can write your code once and run it on any device with a modern web browser.
+
+For the application architecture, you could consider the following:
+
+- **Frontend:** Use a component-based architecture that most modern frameworks (like React or Vue.js) follow. This architecture promotes reusability and separation of concerns.
+  
+- **Backend:** Use a REST or GraphQL API to communicate with your frontend. Structure your backend code according to the MVC (Model-View-Controller) pattern for separation of concerns. If your application logic gets complex, consider using a service-oriented architecture.
+
+- **Database:** Use an ORM (Object-Relational Mapping) tool like SQLAlchemy (for Python) or Sequelize (for Node.js) to interact with your database. This allows you to write database queries using your programming language, instead of writing raw SQL.
+
+In terms of user authentication, consider using JWT (JSON Web Tokens) for stateless authentication. For email notifications, you can use a service like SendGrid.
+
+Remember, there is no one-size-fits-all in software development. The choices largely depend on your specific requirements, your familiarity with the tools, and the problem you're trying to solve. It's always a good idea to start small and then iterate on your product based on user feedback.
