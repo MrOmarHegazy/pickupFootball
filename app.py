@@ -37,6 +37,7 @@ except sqlite3.OperationalError as e:
     print(f"Couldn't open the database at {db_path}. Error: {e}")
 
 # The following three functions are intended to make the database start a new object everytime a connection wats to be used
+"""
 def get_db():
     db = getattr(g, '_database', None)
     if db is None:
@@ -52,6 +53,7 @@ def teardown_request(exception):
     db = getattr(g, '_database', None)
     if db is not None:
         db.close()
+"""
 ###############################################################################
 
 @app.route("/")
@@ -62,6 +64,10 @@ def main():
 
     return apology("TO-DO", 400)
     #return render_template("index.html")
+
+@app.route("/calendar", methods=["GET", "POST"])
+def calendar():
+    return render_template("calendar.html")
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
@@ -82,20 +88,21 @@ def login():
             return apology("must provide password", 403)
 
         # Query database for username
-        db = get_db()
-        cursor = db.cursor()
-        query1 = "SELECT * FROM users WHERE username = ?", (request.form.get("username"),)
-        rows = cursor.execute(query1).fetchall()
+        # db = get_db()
+        # cursor = db.cursor()
+        # query1 = "SELECT * FROM users WHERE username = ?", (request.form.get("username"),)
+        # rows = cursor.execute(query1).fetchall()
 
         # Ensure username exists and password is correct
-        if len(rows) != 1 or not check_password_hash(rows[0]["hash"], request.form.get("password")):
-            return apology("invalid username and/or password", 403)
+        # if len(rows) != 1 or not check_password_hash(rows[0]["hash"], request.form.get("password")):
+        #     return apology("invalid username and/or password", 403)
 
         # Remember which user has logged in
-        session["user_id"] = rows[0]["id"]
+        # session["user_id"] = rows[0]["id"]
 
         # Redirect user to home page
-        return redirect("/")
+        #return redirect("/")
+        return redirect("/calendar")
 
     # User reached route via GET (as by clicking a link or via redirect)
     else:
@@ -121,36 +128,22 @@ def register():
         password = request.form.get("password")
         hashed_password = generate_password_hash(password)
 
-        """Validate Input"""
-        query1 = "SELECT * FROM users WHERE username LIKE {n}".format(n = username )
+        # """Validate Input"""
+        # db = get_db()
+        # cursor = db.cursor()
+        # query1 = "SELECT * FROM users WHERE username = ?"
+        # usernames = cursor.execute(query1, (username,))
 
-        # Create new connection and cursor
-        connection = sqlite3.connect(db_path)
-        cursor = connection.cursor()
+        # if username == "":
+        #     return apology("Please enter a username", 400)
 
-        usernames = cursor.execute(query1)
-        connection.commit()
+        # elif len(usernames) > 0:
+        #     return apology("Username already exists", 400)
 
-        # Close connection
-        connection.close()
-
-        if username == "":
-            return apology("Please enter a username", 400)
-
-        elif len(usernames) > 0:
-            return apology("Username already exists", 400)
-
-        else:
-            # Create new connection and cursor
-            connection = sqlite3.connect(db_path)
-            cursor = connection.cursor()
-
-            query1 = "INSERT INTO users (username, hash) VALUES({usrn}, {hpass})".format(usrn = username, hpass = hashed_password )
-            cursor.execute(query1)
-            connection.commit()
-
-            # Close connection
-            connection.close()
+        # else:
+        #     query1 = "INSERT INTO users (username, hash) VALUES(?, ?)"
+        #     cursor.execute(query1, (username, hashed_password))
+        #     connection.commit()
 
         # Redirect user to home page
         return redirect("/")
@@ -159,5 +152,6 @@ def register():
         return render_template("register.html")
     
 if __name__ == '__main__':
-    app.debug = True  #This updates browser with every code change, and gives useful tips if things go wrong
-    app.run()
+    #app.config[‘TEMPLATES_AUTO_RELOAD’] = True
+    #app.config[‘SEND_FILE_MAX_AGE_DEFAULT’] = 0
+    app.run() #This updates browser with every code change, and gives useful tips if things go wrong
