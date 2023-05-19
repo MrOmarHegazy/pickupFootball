@@ -1,5 +1,6 @@
 import sqlite3
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy.exc import IntegrityError
 from flask import Flask, g, flash, redirect, render_template, request, session
 from flask_session import Session
 from tempfile import mkdtemp
@@ -21,17 +22,23 @@ Session(app)
 
 """ Configure SQLite database """
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////registration.db'  
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(currentdirectory, 'registration.db')
+
+
+"""app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///C:/Users/omary/registration.db'"""
+
 db = SQLAlchemy(app) #Initialize App
 
 #First Table "Users" of registration.db database
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
+    password = db.Column(db.String(80), nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
-    firstName = db.Column(db.String(80), unique=True, nullable=False)
-    lastName = db.Column(db.String(80), unique=True, nullable=False)
-    cashBalance = db.Column(db.Integer)
+    phoneNumber = db.Column(db.String(20), unique=True, nullable=False)
+    firstName = db.Column(db.String(80), nullable=False)
+    lastName = db.Column(db.String(80), nullable=False)
+    cashBalance = db.Column(db.Integer, default=0)
 
     #posts = db.relationship('Post', backref='author', lazy=True)
 
@@ -42,6 +49,7 @@ class User(db.Model):
 with app.app_context():
     # After defining your models, create the tables
     db.create_all()
+    print("Database Table Created")
 ###########################################################################
 
 @app.route("/")
@@ -119,26 +127,29 @@ def register():
         username = request.form.get("username")
         password = request.form.get("password")
         hashed_password = generate_password_hash(password)
+        email = request.form.get("email")
+        phone_number = request.form.get("phone_number")
+        first_name = request.form.get("firstname")
+        last_name = request.form.get("lastname")
 
-        # """Validate Input"""
-        # db = get_db()
-        # cursor = db.cursor()
-        # query1 = "SELECT * FROM users WHERE username = ?"
-        # usernames = cursor.execute(query1, (username,))
+        #Validate Input 
+        """TO-DO"""
 
-        # if username == "":
-        #     return apology("Please enter a username", 400)
+        user = User(username=username, password=hashed_password, email=email, phoneNumber=phone_number, firstName=first_name, lastName=last_name)
 
-        # elif len(usernames) > 0:
-        #     return apology("Username already exists", 400)
+        try:
+            db.session.add(user)
+            db.session.commit()
+            print("Registration Successful")
+        except IntegrityError as e:
+            db.session.rollback()
+            print(str(e.orig))
+            flash('Username, email, or phone number already exist!')
+            print("Integrity Error")
+            return redirect('/register')  # Replace with the registration page
 
-        # else:
-        #     query1 = "INSERT INTO users (username, hash) VALUES(?, ?)"
-        #     cursor.execute(query1, (username, hashed_password))
-        #     connection.commit()
-
-        # Redirect user to home page
-        return redirect("/")
+        # Proceed as normal...
+        return render_template("registration_success.html")  # Replace with the success page
 
     else:
         return render_template("register.html")

@@ -5,16 +5,57 @@
 {% endblock %}
 
 {% block main %}
-    <form action="/register" method="post">
-        <div class="mb-3">
-            <input autocomplete="off" autofocus class="form-control mx-auto w-auto" id="username" name="username" placeholder="Username" type="text">
+<h2 class = "mx-auto mb-3"> Register for Pickup Football! </h2>
+<div class="container d-flex justify-content-center">
+    <form action="/register" method="post" class="w-50">
+        <div class="row mb-3">
+            <label for="firstname" class="col-sm-4 col-form-label">First Name</label>
+            <div class="col-sm-8">
+                <input autocomplete="off" autofocus class="form-control w-auto" id="firstname" name="firstname" placeholder="First Name" type="text" required>
+            </div>
         </div>
-        <div class="mb-3">
-            <input class="form-control mx-auto w-auto" id="password" name="password" placeholder="Password" type="password">
+        <div class="row mb-3">
+            <label for="lastname" class="col-sm-4 col-form-label">Last Name</label>
+            <div class="col-sm-8">
+                <input class="form-control w-auto" id="lastname" name="lastname" placeholder="Last Name" type="text" required>
+            </div>
         </div>
-        <div class="mb-3">
-            <input class="form-control mx-auto w-auto" id="password" name="confirmation" placeholder="confirmation" type="password">
+        <div class="row mb-3">
+            <label for="email" class="col-sm-4 col-form-label">Email Address</label>
+            <div class="col-sm-8">
+                <input class="form-control w-auto" id="email" name="email" placeholder="Email Address" type="email" required>
+            </div>
         </div>
-        <button class="btn btn-primary" type="submit">Register</button>
+        <div class="row mb-3">
+            <label for="phonenumber" class="col-sm-4 col-form-label">Phone Number</label>
+            <div class="col-sm-8">
+                <input class="form-control w-auto" id="phonenumber" name="phone_number" placeholder="Phone Number" type="tel" required>
+            </div>
+        </div>
+        <div class="row mb-3">
+            <label for="username" class="col-sm-4 col-form-label">Username</label>
+            <div class="col-sm-8">
+                <input class="form-control w-auto" id="username" name="username" placeholder="Username" type="text" required>
+            </div>
+        </div>
+        <div class="row mb-3">
+            <label for="password" class="col-sm-4 col-form-label">Password</label>
+            <div class="col-sm-8">
+                <input class="form-control w-auto" id="password" name="password" placeholder="Password" type="password" required>
+            </div>
+        </div>
+        <div class="row mb-3">
+            <label for="confirmation" class="col-sm-4 col-form-label">Confirm Password</label>
+            <div class="col-sm-8">
+                <input class="form-control w-auto" id="confirmation" name="confirmation" placeholder="Confirm Password" type="password" required>
+            </div>
+        </div>
+        <div class="row justify-content-center">
+            <div class="col-sm-4">
+                <button class="btn btn-primary w-auto" type="submit">Register</button>
+            </div>
+        </div>
     </form>
+</div>
+
 {% endblock %}
