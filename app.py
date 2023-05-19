@@ -1,4 +1,5 @@
 import sqlite3
+from flask_sqlalchemy import SQLAlchemy
 from flask import Flask, g, flash, redirect, render_template, request, session
 from flask_session import Session
 from tempfile import mkdtemp
@@ -19,47 +20,34 @@ app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
 
 """ Configure SQLite database """
-currentdirectory = os.getcwd()  # get current directory
-db_path = os.path.join(currentdirectory, "registration.db")  # join path
 
-# check if the directory exists
-if not os.path.exists(currentdirectory):
-    print(f"Directory {currentdirectory} does not exist")
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////registration.db'  
+db = SQLAlchemy(app) #Initialize App
 
-# check if you have write permissions in this directory
-if not os.access(currentdirectory, os.W_OK):
-    print(f"No write permission in the directory {currentdirectory}")
+#First Table "Users" of registration.db database
+class User(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(80), unique=True, nullable=False)
+    email = db.Column(db.String(120), unique=True, nullable=False)
+    firstName = db.Column(db.String(80), unique=True, nullable=False)
+    lastName = db.Column(db.String(80), unique=True, nullable=False)
+    cashBalance = db.Column(db.Integer)
 
-# Now try to connect to the database
-try:
-    connection = sqlite3.connect(db_path)
-except sqlite3.OperationalError as e:
-    print(f"Couldn't open the database at {db_path}. Error: {e}")
+    #posts = db.relationship('Post', backref='author', lazy=True)
 
-# The following three functions are intended to make the database start a new object everytime a connection wats to be used
-"""
-def get_db():
-    db = getattr(g, '_database', None)
-    if db is None:
-        db = g._database = sqlite3.connect(db_path)
-    return db
+    def __repr__(self):
+        return '<User %r>' % self.username
 
-@app.before_request
-def before_request():
-    g.db = get_db()
-
-@app.teardown_request
-def teardown_request(exception):
-    db = getattr(g, '_database', None)
-    if db is not None:
-        db.close()
-"""
-###############################################################################
+# Create an application context
+with app.app_context():
+    # After defining your models, create the tables
+    db.create_all()
+###########################################################################
 
 @app.route("/")
 @login_required
 def main():
-    """Show available days on a calendar"""
+    """Show user profile, cash in account, days registered"""
     # TO-DO
 
     return apology("TO-DO", 400)
@@ -81,28 +69,32 @@ def login():
 
         # Ensure username was submitted
         if not request.form.get("username"):
-            return apology("must provide username", 403)
+            flash("Must Provide Username!")
+            return render_template("login.html")
 
         # Ensure password was submitted
         elif not request.form.get("password"):
-            return apology("must provide password", 403)
+            flash("Must Provide Password!")
+            return render_template("login.html")
+        
+        else:
+            username = request.form.get("username")
+            password = request.form.get("password")
 
-        # Query database for username
-        # db = get_db()
-        # cursor = db.cursor()
-        # query1 = "SELECT * FROM users WHERE username = ?", (request.form.get("username"),)
-        # rows = cursor.execute(query1).fetchall()
+        # Query the database directly for the user by username
+        user = User.query.filter_by(username=username).first()  
 
-        # Ensure username exists and password is correct
-        # if len(rows) != 1 or not check_password_hash(rows[0]["hash"], request.form.get("password")):
-        #     return apology("invalid username and/or password", 403)
+
+         # Ensure username exists and password is correct
+        if not user or not check_password_hash(user.password, password):
+            # This means either the user wasn't found, or the password was incorrect.
+            return apology("invalid username and/or password", 403)
 
         # Remember which user has logged in
-        # session["user_id"] = rows[0]["id"]
+        session["user_id"] = user.id
 
         # Redirect user to home page
-        #return redirect("/")
-        return redirect("/calendar")
+        return redirect("/")
 
     # User reached route via GET (as by clicking a link or via redirect)
     else:
@@ -154,4 +146,4 @@ def register():
 if __name__ == '__main__':
     #app.config[‘TEMPLATES_AUTO_RELOAD’] = True
     #app.config[‘SEND_FILE_MAX_AGE_DEFAULT’] = 0
-    app.run() #This updates browser with every code change, and gives useful tips if things go wrong
+    app.run() 
