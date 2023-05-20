@@ -7,50 +7,28 @@ from tempfile import mkdtemp
 from werkzeug.security import check_password_hash, generate_password_hash
 import os
 from helpers import apology, login_required, lookup, usd
+from models import db, User, Field, Slot, Booking, WaitingList
 
-# Configure application
-app = Flask(__name__)
-currentdirectory = os.path.dirname(os.path.abspath(__file__))
+def create_app():
+    app = Flask(__name__)
 
-# Custom filter
-app.jinja_env.filters["usd"] = usd
+    # Custom filter
+    app.jinja_env.filters["usd"] = usd
 
-# Configure session to use filesystem (instead of signed cookies)
-app.config["SESSION_PERMANENT"] = False
-app.config["SESSION_TYPE"] = "filesystem"
-Session(app)
+    # Configure session to use filesystem (instead of signed cookies)
+    app.config["SESSION_PERMANENT"] = False
+    app.config["SESSION_TYPE"] = "filesystem"
+    Session(app)
 
-""" Configure SQLite database """
+    """ Configure SQLite database """
+    currentdirectory = os.path.dirname(os.path.abspath(__file__))
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(currentdirectory, 'registration.db')
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(currentdirectory, 'registration.db')
+    db.init_app(app) #Binds the db object to our Flask app
 
+    return app
 
-"""app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///C:/Users/omary/registration.db'"""
-
-db = SQLAlchemy(app) #Initialize App
-
-#First Table "Users" of registration.db database
-class User(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(80), unique=True, nullable=False)
-    password = db.Column(db.String(80), nullable=False)
-    email = db.Column(db.String(120), unique=True, nullable=False)
-    phoneNumber = db.Column(db.String(20), unique=True, nullable=False)
-    firstName = db.Column(db.String(80), nullable=False)
-    lastName = db.Column(db.String(80), nullable=False)
-    cashBalance = db.Column(db.Integer, default=0)
-
-    #posts = db.relationship('Post', backref='author', lazy=True)
-
-    def __repr__(self):
-        return '<User %r>' % self.username
-
-# Create an application context
-with app.app_context():
-    # After defining your models, create the tables
-    db.create_all()
-    print("Database Table Created")
-###########################################################################
+app = create_app()
 
 @app.route("/")
 @login_required
@@ -154,7 +132,20 @@ def register():
     else:
         return render_template("register.html")
     
-if __name__ == '__main__':
-    #app.config[‘TEMPLATES_AUTO_RELOAD’] = True
-    #app.config[‘SEND_FILE_MAX_AGE_DEFAULT’] = 0
-    app.run() 
+@app.route("/book")
+@login_required
+def book():
+    return
+    
+
+if __name__ == "__main__":
+
+    """All this code only works when you run "python app.py" for example directly, but when running flask, you import this file as a module, and so all this code below never runs"""
+
+    with app.app_context():
+        db.create_all()
+        print("Database Table Created")
+    app.config['DEBUG'] = True                     #Only for developement
+    app.config['TEMPLATES_AUTO_RELOAD'] = True     #Only for developement
+    app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0    #Removes cache, only for dev
+    app.run()
