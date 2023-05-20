@@ -8,6 +8,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 import os
 from helpers import apology, login_required, lookup, usd
 from models import db, User, Field, Slot, Booking, WaitingList
+import re
 
 def create_app():
     app = Flask(__name__)
@@ -32,12 +33,11 @@ app = create_app()
 
 @app.route("/")
 @login_required
-def main():
+def index():
     """Show user profile, cash in account, days registered"""
     # TO-DO
 
-    return apology("TO-DO", 400)
-    #return render_template("index.html")
+    return render_template("index.html")
 
 @app.route("/calendar", methods=["GET", "POST"])
 def calendar():
@@ -53,9 +53,9 @@ def login():
     # User reached route via POST (as by submitting a form via POST)
     if request.method == "POST":
 
-        # Ensure username was submitted
-        if not request.form.get("username"):
-            flash("Must Provide Username!")
+        # Ensure Entry was submitted
+        if not request.form.get("login_entry"):
+            flash("Must Provide Email or Phone Number!")
             return render_template("login.html")
 
         # Ensure password was submitted
@@ -64,17 +64,27 @@ def login():
             return render_template("login.html")
         
         else:
-            username = request.form.get("username")
+            loginEntry = request.form.get("login_entry")
             password = request.form.get("password")
 
-        # Query the database directly for the user by username
-        user = User.query.filter_by(username=username).first()  
+        #Process entry, whether email or phone number, then query the database for the user
+        if process_input(loginEntry) == "email":
+            user = User.query.filter_by(email=loginEntry).first()
+          
+        elif process_input(loginEntry) == "phone number":
+            user = User.query.filter_by(phoneNumber=loginEntry).first()
+        
+        else:
+            flash("Please enter a valid email or phone number!")
+            return render_template("login.html")
 
-
-         # Ensure username exists and password is correct
-        if not user or not check_password_hash(user.password, password):
-            # This means either the user wasn't found, or the password was incorrect.
-            return apology("invalid username and/or password", 403)
+        # Ensure username exists and password is correct
+        if not user:
+            return apology("The Email or Phone Number you Provided is not registered. Please register and try again.", 403)
+        
+        elif not check_password_hash(user.password, password):
+            flash("Incorrect Password!")
+            return render_template("login.html")
 
         # Remember which user has logged in
         session["user_id"] = user.id
@@ -102,7 +112,6 @@ def register():
     """Register user"""
     if request.method == "POST":
 
-        username = request.form.get("username")
         password = request.form.get("password")
         hashed_password = generate_password_hash(password)
         email = request.form.get("email")
@@ -113,7 +122,7 @@ def register():
         #Validate Input 
         """TO-DO"""
 
-        user = User(username=username, password=hashed_password, email=email, phoneNumber=phone_number, firstName=first_name, lastName=last_name)
+        user = User(password=hashed_password, email=email, phoneNumber=phone_number, firstName=first_name, lastName=last_name)
 
         try:
             db.session.add(user)
@@ -137,6 +146,19 @@ def register():
 def book():
     return
     
+def process_input(user_input):
+    # Regex pattern for email
+    email_regex = re.compile(r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b')
+
+    # Regex pattern for phone number
+    phone_regex = re.compile(r'\b\d{3}[-.]?\d{3}[-.]?\d{4}\b')
+
+    if email_regex.fullmatch(user_input):
+        return "email"
+    elif phone_regex.fullmatch(user_input):
+        return "phone number"
+    else:
+        return "invalid"
 
 if __name__ == "__main__":
 
