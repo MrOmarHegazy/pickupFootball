@@ -179,42 +179,54 @@ def get_business_week_and_slots_available(d):
     business_days = [(start_of_week + timedelta(days=i)).strftime('%B %d') for i in range(5)]
 
     capacities = {}
+    dayindex = 0
     
     for day in business_days:
         # Convert the string representation back to a date object for querying
         day_date = datetime.strptime(day, '%B %d').date()
-        
+         # Set the year to be the same as the original date
+        correct_year = d.year
+        day_date = day_date.replace(year=correct_year)
+
         try:
             day_slot = db.session.query(Slot).filter(Slot.date == day_date).first()
-            if day_slot:
-                capacities[day] = day_slot.currentCapacity
-            
-            #else:
-            #    get_business_week_and_slots_available(d) #take you back to beginning of loop to obtain capacity
-            
 
+            if day_slot:
+                capacities[dayindex] = day_slot.currentCapacity
+            else:
+                if dayindex == 0:  # Only call this once per week, not for every missing day
+                    print("No slot found for the date, adding new week slots.")
+                    add_new_week_slots(start_of_week)
+            
+            dayindex += 1
+            
         except:
             db.session.rollback()
-            add_new_week_slots()
             print("Integrity Error in Get Business Week Function")
+
     
     return business_days, capacities
 
-def add_new_week_slots():
+def add_new_week_slots(start_of_week):
     """TO-DO: Consider CRON job or Celery(for flask) to automate this every Saturday at 12am"""
-    today = date.today()
-    # Check if today is a Monday
-    if today.weekday() == 0:
-        # Add slots for the entire week
-        for i in range(5):  # Monday to Friday
-            slot_date = today + timedelta(days=i)
+
+    # Add slots for the entire week
+    for i in range(5):  # Monday to Friday
+        slot_date = start_of_week + timedelta(days=i)
+        
+        # Check if a slot for this date already exists
+        existing_slot = db.session.query(Slot).filter(Slot.date == slot_date).first()
+        
+        if existing_slot is None:
             try:
-                new_slot = Slot(date=slot_date, fieldId = 1, startTime =  time(7, 30), endTime =  time(9, 00), maxCapacity = 56, currentCapacity = 0)  # fill in the other fields as required
+                new_slot = Slot(date=slot_date, fieldId=1, startTime=time(7, 30), endTime=time(9, 00), maxCapacity=56, currentCapacity=56)  # fill in the other fields as required
                 db.session.add(new_slot)
             except:
                 print("Problem in add_new_week_slots method")
-        db.session.commit()
-
+                db.session.rollback()
+        
+    print("New week added in database Slots table")
+    db.session.commit()
 if __name__ == "__main__":
 
     """All this code only works when you run "python app.py" for example directly, but when running flask, you import this file as a module, and so all this code below never runs"""

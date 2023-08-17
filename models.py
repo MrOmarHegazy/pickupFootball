@@ -34,7 +34,7 @@ class Slot(db.Model):
     fieldId = db.Column(db.Integer, db.ForeignKey('field.id'), nullable=False)
     startTime = db.Column(db.Time, nullable=False)
     endTime = db.Column(db.Time, nullable=False)
-    date = db.Column(db.Date, nullable=False)
+    date = db.Column(db.Date, nullable=False, unique = True)
     maxCapacity = db.Column(db.Integer, nullable=False)
     currentCapacity = db.Column(db.Integer, nullable=False, default=0)
     fieldId = db.Column(db.Integer, db.ForeignKey('field.id'), nullable=False)
