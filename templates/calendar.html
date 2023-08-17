@@ -5,45 +5,44 @@
 {% endblock %}
 
 {% block main %}
-    <div id="calendar"></div>
-    <h2> Choose days you would like to register: </h2>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.16/dist/tailwind.min.css" rel="stylesheet">
 
-    <div class="calendar light">
-        <div class="calendar-header">
-            <span class="month-picker" id="month-picker">February</span>
-            <div class="year-picker">
-                <span class="year-change" id="prev-year">
-                    <pre><</pre>
-                </span>
-                <span id="year">2021</span>
-                <span class="year-change" id="next-year">
-                    <pre>></pre>
-                </span>
-            </div>
+    <div id="calendar"></div>  
+    <h3> Choose days you would like to register: </h3>
+
+    <div class="flex space-x-4 p-10">
+        <div class="shadow-lg w-1/5 p-4 flex flex-col items-center justify-center bg-white rounded ">
+          <h2 class="font-bold text-xl mb-2">Monday</h2>
+          <p class="text-gray-700">{{week_info[0]}}</p>
+          <p class="text-green-600 mb-2">{{ mon_spots_available }} spots available</p>
+          <button class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">Select</button>
         </div>
-        <div class="calendar-body">
-            <div class="calendar-week-day">
-                <div>Sun</div>
-                <div>Mon</div>
-                <div>Tue</div>
-                <div>Wed</div>
-                <div>Thu</div>
-                <div>Fri</div>
-                <div>Sat</div>
-            </div>
-            <div class="calendar-days"></div>
+        <div class="shadow-lg w-1/5 p-4 flex flex-col items-center justify-center bg-white rounded">
+            <h2 class="font-bold text-xl mb-2">Tuesday</h2>
+            <p class="text-gray-700">{{week_info[1]}}</p>
+            <p class="text-green-600 mb-2">{{tues_spots_available}} spots available</p>
+            <button class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">Select</button>
+          </div>
+          <div class="shadow-lg w-1/5 p-4 flex flex-col items-center justify-center bg-white rounded">
+            <h2 class="font-bold text-xl mb-2">Wednesday</h2>
+            <p class="text-gray-700">{{week_info[2]}}</p>
+            <p class="text-green-600 mb-2">{{wed_spots_available}} spots available</p>
+            <button class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">Select</button>
+          </div>
+          <div class="shadow-lg w-1/5 p-4 flex flex-col items-center justify-center bg-white rounded">
+            <h2 class="font-bold text-xl mb-2">Thursday</h2>
+            <p class="text-gray-700">{{week_info[3]}}</p>
+            <p class="text-green-600 mb-2">{{thurs_spots_available}} spots available</p>
+            <button class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">Select</button>
+          </div>
+          <div class="shadow-lg w-1/5 p-4 flex flex-col items-center justify-center bg-white rounded">
+            <h2 class="font-bold text-xl mb-2">Friday</h2>
+            <p class="text-gray-700">{{week_info[4]}}</p>
+            <p class="text-red-600 mb-2">{{fri_spots_available}} spots available</p>
+            <button class="bg-gray-500 text-black px-4 py-2 rounded cursor-not-allowed" disabled>No Spots</button>
         </div>
-        <div class="calendar-footer">
-            <div class="toggle">
-                <span>Dark Mode</span>
-                <div class="dark-mode-switch">
-                    <div class="dark-mode-switch-ident"></div>
-                </div>
-            </div>
-        </div>
-        <div class="month-list"></div>
     </div>
-    </div>
-    <button id="register">Register</button>
+      
+    <button class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 " id="register">Register</button>
     <script src="{{ url_for('static', filename='app.js') }}"></script>
 {% endblock %}

@@ -8,7 +8,8 @@ Front-End:
 Back-End:
 
 1. Server: need to figure out where I'm going to run it, has to be something cheap and reliable
-2. Database: Can use SQL lite
+2. Database: Can use SQL lite. Ended up Using SQL Alchemy
+3. CRON job to update database on weekly basis with new slot data
 
 #################################################################################################
 Chat GPT Suggestion:

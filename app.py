@@ -8,6 +8,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 import os
 from helpers import apology, login_required, lookup, usd
 from models import db, User, Field, Slot, Booking, WaitingList
+from datetime import date, time, timedelta, datetime
 import re
 
 def create_app():
@@ -41,7 +42,16 @@ def index():
 
 @app.route("/calendar", methods=["GET", "POST"])
 def calendar():
-    return render_template("calendar.html")
+    """Importing the current date info and populating calendar"""
+
+    current_day = date.today()
+    week_info = get_business_week_and_slots_available(current_day)
+
+    #TO-DO: Move this code to a method that handles the current capacity and booking of spots
+    # Querying for the number of available spots (This is just a mockup, adapt it to your actual model and requirements)
+    #total_spots = db.session.query(Slot).currentCapacity()
+
+    return render_template("calendar.html", week_info=week_info) #TO-DO: pass on the date time info 
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
@@ -159,6 +169,51 @@ def process_input(user_input):
         return "phone number"
     else:
         return "invalid"
+    
+def get_business_week_and_slots_available(d):
+    # Monday is 0 and Sunday is 6
+    start_of_week = d - timedelta(days=d.weekday())  # This will get the Monday of the week
+    end_of_week = start_of_week + timedelta(days=4)  # This will get the Friday of the week
+
+    # Generate dates from Monday to Friday
+    business_days = [(start_of_week + timedelta(days=i)).strftime('%B %d') for i in range(5)]
+
+    capacities = {}
+    
+    for day in business_days:
+        # Convert the string representation back to a date object for querying
+        day_date = datetime.strptime(day, '%B %d').date()
+        
+        try:
+            day_slot = db.session.query(Slot).filter(Slot.date == day_date).first()
+            if day_slot:
+                capacities[day] = day_slot.currentCapacity
+            
+            #else:
+            #    get_business_week_and_slots_available(d) #take you back to beginning of loop to obtain capacity
+            
+
+        except:
+            db.session.rollback()
+            add_new_week_slots()
+            print("Integrity Error in Get Business Week Function")
+    
+    return business_days, capacities
+
+def add_new_week_slots():
+    """TO-DO: Consider CRON job or Celery(for flask) to automate this every Saturday at 12am"""
+    today = date.today()
+    # Check if today is a Monday
+    if today.weekday() == 0:
+        # Add slots for the entire week
+        for i in range(5):  # Monday to Friday
+            slot_date = today + timedelta(days=i)
+            try:
+                new_slot = Slot(date=slot_date, fieldId = 1, startTime =  time(7, 30), endTime =  time(9, 00), maxCapacity = 56, currentCapacity = 0)  # fill in the other fields as required
+                db.session.add(new_slot)
+            except:
+                print("Problem in add_new_week_slots method")
+        db.session.commit()
 
 if __name__ == "__main__":
 
